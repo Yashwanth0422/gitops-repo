@@ -2,8 +2,8 @@ name: GitOps Deployment
 
 on:
   push:
-     branches:
-       - main
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       image_tag:
@@ -34,10 +34,20 @@ jobs:
         env:
           GIT_PAT: ${{ secrets.PAT_TOKEN }}
         run: |
+          # Configure Git
           git config user.email "ci@example.com"
           git config user.name "CI Bot"
-          # IMPORTANT: overwrite origin URL to use PAT
+
+          # Make sure GIT_PAT is not empty
+          if [ -z "$GIT_PAT" ]; then
+            echo "Error: GIT_PAT is empty"
+            exit 1
+          fi
+
+          # Set remote URL correctly
           git remote set-url origin https://x-access-token:${GIT_PAT}@github.com/Yashwanth0422/gitops-repo.git
+
+          # Commit and push
           git add deployment.yaml
           git commit -m "Deploy image tag ${IMAGE_TAG}" || echo "No changes to commit"
           git push origin main
