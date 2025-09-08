@@ -22,20 +22,3 @@ jobs:
 
       # Update deployment.yaml with the new image tag
       - name: Update Deployment Manifest
-        env:
-          IMAGE_TAG: ${{ github.event.inputs.image_tag }}
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        run: |
-          sed -i "s|image: .*|image: docker.io/${DOCKER_USERNAME}/sample-webapp:${IMAGE_TAG}|g" deployment.yaml
-
-      # Commit and push changes
-      - name: Commit and Push
-        env:
-          GIT_PAT: ${{ secrets.PAT_TOKEN }}
-        run: |
-          git config user.email "ci@example.com"
-          git config user.name "CI Bot"
-          git remote set-url origin https://x-access-token:${GIT_PAT}@github.com/${{ github.repository }}.git
-          git add deployment.yaml
-          git commit -m "Deploy image tag ${IMAGE_TAG}" || echo "No changes to commit"
-          git push origin main
