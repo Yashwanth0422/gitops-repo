@@ -1,0 +1,30 @@
+name: GitOps Deployment
+
+on:
+  workflow_run:
+    workflows: ["Build & Test"]
+    types:
+      - completed
+
+jobs:
+  update-deployment:
+    name: Update Deployment Manifest
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout gitops-repo
+      - name: Checkout gitops-repo
+        uses: actions/checkout@v3
+
+      # Update deployment.yaml with new image tag
+      - name: Update Deployment Manifest
+        env:
+          IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        run: |
+          sed -i "s|image: .*|image: docker.io/${DOCKER_USERNAME}/sample-webapp:${IMAGE_TAG}|g" deployment.yaml
+          git config user.email "ci@example.com"
+          git config user.name "CI Bot"
+          git add deployment.yaml
+          git commit -m "Deploy image tag ${IMAGE_TAG}"
+          git push origin main
