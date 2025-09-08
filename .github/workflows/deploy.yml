@@ -3,6 +3,10 @@ name: GitOps Deployment
 # Trigger manually or via API
 on:
   workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag from add-repo'
+        required: true
 
 jobs:
   update-deployment:
@@ -19,7 +23,7 @@ jobs:
       # Update deployment.yaml with new image tag
       - name: Update Deployment Manifest
         env:
-          IMAGE_TAG: ${{ github.event.inputs.image_tag }}  # pass image tag as input
+          IMAGE_TAG: ${{ github.event.inputs.image_tag }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           sed -i "s|image: .*|image: docker.io/${DOCKER_USERNAME}/sample-webapp:${IMAGE_TAG}|g" deployment.yaml
