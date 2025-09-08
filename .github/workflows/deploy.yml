@@ -20,7 +20,7 @@ jobs:
       - name: Checkout gitops-repo
         uses: actions/checkout@v3
         with:
-          repository: Yashwanth0422/gitops-repo   # Explicitly checkout target repo
+          repository: Yashwanth0422/gitops-repo
           token: ${{ secrets.PAT_TOKEN }}
 
       # Update deployment.yaml with the new image tag
@@ -31,14 +31,11 @@ jobs:
         run: |
           sed -i "s|image: .*|image: docker.io/${DOCKER_USERNAME}/sample-webapp:${IMAGE_TAG}|g" deployment.yaml
 
-      # Commit and push changes using PAT
+      # Commit and push changes
       - name: Commit and Push
-        env:
-          GIT_PAT: ${{ secrets.PAT_TOKEN }}
         run: |
           git config user.email "ci@example.com"
           git config user.name "CI Bot"
-          git remote set-url origin https://x-access-token:${GIT_PAT}@github.com/Yashwanth0422/gitops-repo.git
           git add deployment.yaml
           git commit -m "Deploy image tag ${IMAGE_TAG}" || echo "No changes to commit"
           git push origin main
