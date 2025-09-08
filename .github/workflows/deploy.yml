@@ -1,13 +1,8 @@
 name: GitOps Deployment
 
+# Trigger manually or via API
 on:
-  push:
-    branches:
-      - main
-  workflow_run:
-    workflows: ["Build & Test"]
-    types:
-      - completed
+  workflow_dispatch:
 
 jobs:
   update-deployment:
@@ -18,16 +13,25 @@ jobs:
       # Checkout gitops-repo
       - name: Checkout gitops-repo
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
 
       # Update deployment.yaml with new image tag
       - name: Update Deployment Manifest
         env:
-          IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+          IMAGE_TAG: ${{ github.event.inputs.image_tag }}  # pass image tag as input
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           sed -i "s|image: .*|image: docker.io/${DOCKER_USERNAME}/sample-webapp:${IMAGE_TAG}|g" deployment.yaml
+
+      # Commit and push changes using PAT
+      - name: Push updated deployment
+        env:
+          GIT_PAT: ${{ secrets.PAT_TOKEN }}
+        run: |
           git config user.email "ci@example.com"
           git config user.name "CI Bot"
+          git remote set-url origin https://x-access-token:${GIT_PAT}@github.com/Yashwanth0422/gitops-repo.git
           git add deployment.yaml
-          git commit -m "Deploy image tag ${IMAGE_TAG}"
+          git commit -m "Deploy image tag ${IMAGE_TAG}" || echo "No changes to commit"
           git push origin main
