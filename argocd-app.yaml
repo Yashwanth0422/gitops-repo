@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: arggg
+  name: sample-flask
   namespace: argocd
 spec:
   project: default
