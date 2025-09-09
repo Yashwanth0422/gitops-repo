@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: sample-webapp
-          image: docker.io/yashwanth0422/sample-webapp:27807bb2cb9026f4a9f09b3f5c6f96ad99f88d85
+          image: docker.io/yashwanth0422/sample-webapp:98e58bb6e11eb59fa79dcb5c562382be0ffb2b50
           ports:
             - containerPort: 5000
           readinessProbe:
