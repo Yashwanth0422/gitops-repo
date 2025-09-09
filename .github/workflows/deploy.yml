@@ -1,14 +1,29 @@
-name: GitOps Deployment
+name: CD Pipeline
 
 on:
-  repository_dispatch:
-    types: [update-deployment]
+  push:
+    branches:
+      - main
 
 jobs:
-  test-trigger:
+  deploy:
+    name: Apply Manifests
     runs-on: ubuntu-latest
     steps:
-      - name: Print received payload
+      - name: Checkout gitops-repo
+        uses: actions/checkout@v3
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubeconfig
         run: |
-          echo "Triggered by repository_dispatch"
-          echo "Image tag: ${{ github.event.client_payload.image_tag }}"
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
+
+      - name: Apply manifests
+        run: |
+          kubectl apply -f deployment.yaml
+          kubectl apply -f service.yaml
