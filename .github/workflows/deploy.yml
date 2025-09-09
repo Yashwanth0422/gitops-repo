@@ -5,31 +5,10 @@ on:
     types: [update-deployment]
 
 jobs:
-  update-deployment:
-    name: Update Deployment Manifest
+  test-trigger:
     runs-on: ubuntu-latest
-
     steps:
-      # Checkout gitops-repo
-      - name: Checkout gitops-repo
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.PAT_TOKEN }}
-
-      # Update deployment.yaml with new image tag
-      - name: Update Deployment Manifest
-        env:
-          IMAGE_TAG: ${{ github.event.client_payload.image_tag }}
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      - name: Print received payload
         run: |
-          sed -i "s|image: .*|image: docker.io/${DOCKER_USERNAME}/sample-webapp:${IMAGE_TAG}|g" deployment.yaml
-
-      # Commit and push changes
-      - name: Commit and Push
-        run: |
-          git config user.email "ci@example.com"
-          git config user.name "CI Bot"
-          git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git
-          git add deployment.yaml
-          git commit -m "Deploy image tag ${IMAGE_TAG}" || echo "No changes to commit"
-          git push origin main
+          echo "Triggered by repository_dispatch"
+          echo "Image tag: ${{ github.event.client_payload.image_tag }}"
