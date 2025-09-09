@@ -1,27 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sample-webapp
-  labels:
-    app: sample-webapp
+  name: sample-flask
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sample-webapp
+      app: sample-flask
   template:
     metadata:
       labels:
-        app: sample-webapp
+        app: sample-flask
     spec:
       containers:
-        - name: sample-webapp
-          image: docker.io/yashwanth0422/sample-webapp:98e58bb6e11eb59fa79dcb5c562382be0ffb2b50
+        - name: sample-flask
+          image: yourdockerhubuser/sample-flask:REPLACE_WITH_TAG
           ports:
             - containerPort: 5000
           readinessProbe:
             httpGet:
               path: /healthz
               port: 5000
-            initialDelaySeconds: 5
-            periodSeconds: 10
