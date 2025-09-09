@@ -1,14 +1,8 @@
 name: GitOps Deployment
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-    inputs:
-      image_tag:
-        description: 'Docker image tag to deploy'
-        required: true
+  repository_dispatch:
+    types: [update-deployment]
 
 jobs:
   update-deployment:
@@ -16,17 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the gitops repo with PAT
+      # Checkout gitops-repo
       - name: Checkout gitops-repo
         uses: actions/checkout@v3
         with:
-          repository: Yashwanth0422/gitops-repo
           token: ${{ secrets.PAT_TOKEN }}
 
-      # Update deployment.yaml with the new image tag
+      # Update deployment.yaml with new image tag
       - name: Update Deployment Manifest
         env:
-          IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+          IMAGE_TAG: ${{ github.event.client_payload.image_tag }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           sed -i "s|image: .*|image: docker.io/${DOCKER_USERNAME}/sample-webapp:${IMAGE_TAG}|g" deployment.yaml
@@ -36,6 +29,7 @@ jobs:
         run: |
           git config user.email "ci@example.com"
           git config user.name "CI Bot"
+          git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git
           git add deployment.yaml
           git commit -m "Deploy image tag ${IMAGE_TAG}" || echo "No changes to commit"
           git push origin main
