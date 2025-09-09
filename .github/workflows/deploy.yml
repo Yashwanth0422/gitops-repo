@@ -7,23 +7,19 @@ on:
 
 jobs:
   deploy:
-    name: Apply Manifests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout gitops-repo
         uses: actions/checkout@v3
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'latest'
-
-      - name: Configure kubeconfig
+      - name: Update manifests with image tag
+        env:
+          IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
-
-      - name: Apply manifests
-        run: |
-          kubectl apply -f deployment.yaml
-          kubectl apply -f service.yaml
+          sed -i "s|image: .*|image: docker.io/${DOCKER_USERNAME}/sample-webapp:${IMAGE_TAG}|g" deployment.yaml
+          git config user.email "ci@example.com"
+          git config user.name "CI Bot"
+          git add deployment.yaml
+          git commit -m "Deploy image tag ${IMAGE_TAG}" || echo "No changes to commit"
+          git push origin main
