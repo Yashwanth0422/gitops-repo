@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: arggg
+  name: sample-flask
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: arggg
+      app: sample-flask
   template:
     metadata:
       labels:
-        app: arggg
+        app: sample-flask
     spec:
       containers:
-        - name: arggg
+        - name: sample-flask
           image: yashwanth0422/sample-flask:9dbacabc52a6b9cc01d8dd5697b75f2708b54dbd
           ports:
             - containerPort: 5000
