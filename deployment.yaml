@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: sample-flask
-          image: yashwanth0422/sample-flask:50f32992d61c4a5208308ce5e65ea0e59571f361
+          image: yashwanth0422/sample-flask:ff172ff2d4d77159928ddfac6b3a6253d1349578
           ports:
             - containerPort: 5000
           readinessProbe:
